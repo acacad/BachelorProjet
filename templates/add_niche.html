@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter une niche</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+<div class="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
+    <h1 class="text-2xl font-semibold text-center mb-6">Ajouter une nouvelle niche</h1>
+
+    <form method="POST" class="space-y-4">
+        <div>
+            <label for="nom" class="block text-sm font-medium text-gray-700">Nom de la niche :</label>
+            <input type="text" id="nom" name="nom" required
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
+        <div class="flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-blue-600 hover:underline text-sm">← Retour à l'accueil</a>
+            <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+                Ajouter
+            </button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

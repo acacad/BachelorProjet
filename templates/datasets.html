@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Datasets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .actions {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .datasets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .dataset-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            transition: box-shadow 0.3s;
+        }
+        .dataset-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .dataset-card.active {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .dataset-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .dataset-info {
+            color: #666;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+        .dataset-columns {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-size: 0.85em;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .dataset-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .dataset-actions .btn {
+            padding: 5px 15px;
+            font-size: 0.9em;
+        }
+        .active-badge {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .default-dataset {
+            background-color: #e7f3ff;
+            border-color: #b8daff;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Gestion des Datasets</h1>
+
+    <!-- Messages flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="actions">
+        <div>
+            <a href="{{ url_for('upload_dataset') }}" class="btn">📤 Importer un Dataset</a>
+            <a href="{{ url_for('export_current_dataset') }}" class="btn btn-secondary">💾 Exporter Dataset Actuel</a>
+        </div>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Retour</a>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Dataset actif :</strong>
+        {% if active_dataset == 'database' %}
+        Base de données originale
+        {% else %}
+        {{ active_dataset }}
+        {% endif %}
+    </div>
+
+    <div class="datasets-grid">
+        <!-- Dataset par défaut (base de données) -->
+        <div class="dataset-card default-dataset {% if active_dataset == 'database' %}active{% endif %}">
+            <div class="dataset-name">
+                Base de données originale
+                {% if active_dataset == 'database' %}
+                <span class="active-badge">Actif</span>
+                {% endif %}
+            </div>
+            <div class="dataset-info">
+                <p>📊 Dataset original sauvegardé</p>
+                <p>🗄️ Table: sales_data</p>
+                {% if original_info.exists %}
+                <p>📈 Lignes: {{ original_info.rows }}</p>
+                <p>📋 Colonnes: {{ original_info.columns }}</p>
+                {% endif %}
+            </div>
+            {% if original_info.exists %}
+            <div class="dataset-columns">
+                <strong>Colonnes:</strong><br>
+                {{ original_info.column_names|join(', ') }}
+            </div>
+            {% endif %}
+            <div class="dataset-actions">
+                {% if active_dataset != 'database' %}
+                <a href="{{ url_for('activate_dataset', dataset_name='database') }}" class="btn btn-success">Restaurer Original</a>
+                {% endif %}
+                <a href="{{ url_for('view_variables') }}" class="btn btn-secondary">Voir Variables</a>
+            </div>
+        </div>
+
+        <!-- Datasets importés -->
+        {% for dataset in datasets %}
+        <div class="dataset-card {% if active_dataset == dataset.name %}active{% endif %}">
+            <div class="dataset-name">
+                {{ dataset.name }}
+                {% if active_dataset == dataset.name %}
+                <span class="active-badge">Actif</span>
+                {% endif %}
+            </div>
+            <div class="dataset-info">
+                <p>📊 Lignes: {{ dataset.rows }}</p>
+                <p>📋 Colonnes: {{ dataset.columns }}</p>
+                <p>💾 Taille: {{ dataset.size|format_size }}</p>
+                <p>📅 Modifié: {{ dataset.modified }}</p>
+            </div>
+            <div class="dataset-columns">
+                <strong>Colonnes:</strong><br>
+                {{ dataset.column_names|join(', ') }}
+            </div>
+            <div class="dataset-actions">
+                {% if active_dataset != dataset.name %}
+                <a href="{{ url_for('activate_dataset', dataset_name=dataset.name) }}" class="btn btn-success">Activer</a>
+                {% endif %}
+                <a href="{{ url_for('download_dataset', dataset_name=dataset.name) }}" class="btn btn-secondary">Télécharger</a>
+                <a href="{{ url_for('delete_dataset', dataset_name=dataset.name) }}"
+                   class="btn btn-danger"
+                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dataset ?')">Supprimer</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not datasets %}
+    <div style="text-align: center; margin: 40px 0; color: #666;">
+        <p>Aucun dataset importé pour le moment.</p>
+        <p>Cliquez sur "Importer un Dataset" pour commencer.</p>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>

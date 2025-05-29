@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Prédiction Prophet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+<div class="bg-white rounded-lg shadow-lg p-8 max-w-5xl w-full">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Prédiction des ventes (Prophet)</h1>
+
+    <div class="mb-6 flex justify-center">
+        <img src="{{ url_for('static', filename=image_path) }}" alt="Graphique Prophet" class="rounded shadow">
+    </div>
+
+    <div class="mb-6 text-center">
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">Indicateurs globaux (ensemble test)</h2>
+        <p><strong>RMSE :</strong> {{ rmse }}</p>
+        <p><strong>MAE  :</strong> {{ mae }}</p>
+        <p><strong>R²   :</strong> {{ r2 }}</p>
+        <p><strong>MAPE :</strong> {{ mape }}%</p>
+        <p><strong>SMAPE:</strong> {{ smape }}%</p>
+    </div>
+
+    <div class="mb-6 text-center">
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">Indicateurs sur les 200 derniers jours</h2>
+        <p><strong>RMSE :</strong> {{ rmse_200 }}</p>
+        <p><strong>MAE  :</strong> {{ mae_200 }}</p>
+        <p><strong>R²   :</strong> {{ r2_200 }}</p>
+        <p><strong>MAPE :</strong> {{ mape_200 }}%</p>
+        <p><strong>SMAPE:</strong> {{ smape_200 }}%</p>
+    </div>
+
+    <div class="mb-6 text-center">
+        <hr class="my-4">
+        <p><strong>Prévision totale (30 prochains jours)</strong> : {{ future_sum }}</p>
+    </div>
+
+    <div class="text-center">
+        <a href="{{ url_for('index') }}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
+            Retour à l'accueil
+        </a>
+    </div>
+</div>
+<div class="metric-table">
+    <h2>Résumé comparatif des métriques</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Métrique</th>
+            <th>Sensibilité aux outliers</th>
+            <th>Unité</th>
+            <th>Interprétation intuitive</th>
+            <th>Contexte idéal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>RMSE</td>
+            <td>Élevée</td>
+            <td>Oui</td>
+            <td>Moyenne quadratique de l’erreur</td>
+            <td>Prédictions où grosses erreurs sont critiques</td>
+        </tr>
+        <tr>
+            <td>MAE</td>
+            <td>Faible</td>
+            <td>Oui</td>
+            <td>Moyenne absolue de l’erreur</td>
+            <td>Erreurs équilibrées, interprétation simple</td>
+        </tr>
+        <tr>
+            <td>R²</td>
+            <td>Moyenne</td>
+            <td>Sans unité</td>
+            <td>% de variance expliquée</td>
+            <td>Régression standard (attention en time-series)</td>
+        </tr>
+        <tr>
+            <td>SMAPE</td>
+            <td>Moyenne</td>
+            <td>%</td>
+            <td>Erreur relative symétrique</td>
+            <td>Comparaison sur des échelles différentes</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Variables & Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+<div class="max-w-7xl mx-auto bg-white shadow rounded-lg p-6">
+    <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">Tableau de bord des variables</h1>
+
+    <!-- GRAPHIQUES -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div>
+            <h2 class="text-xl font-semibold text-center mb-2">Évolution des ventes</h2>
+            <img src="{{ url_for('static', filename=sales_only_path) }}" class="rounded shadow">
+        </div>
+        <div>
+            <h2 class="text-xl font-semibold text-center mb-2">Évolution log. des ventes</h2>
+            <img src="{{ url_for('static', filename=sales_log_path) }}" class="rounded shadow">
+        </div>
+        <div class="md:col-span-2">
+            <h2 class="text-xl font-semibold text-center mb-2">Ventes et variables exogènes</h2>
+            <img src="{{ url_for('static', filename=sales_with_vars_path) }}" class="rounded shadow w-full">
+        </div>
+        <div class="md:col-span-2">
+            <h2 class="text-xl font-semibold text-center mb-2">Corrélation entre les variables</h2>
+            <img src="{{ url_for('static', filename=correlation_path) }}" class="rounded shadow w-full">
+        </div>
+    </div>
+
+    <!-- TABLEAU GLOBAL -->
+    <h2 class="text-2xl font-bold text-gray-700 mb-2">Statistiques globales</h2>
+    <div class="overflow-auto mb-6">
+        <table class="min-w-full bg-white text-sm border rounded">
+            <thead>
+            <tr class="bg-gray-200">
+                <th class="px-4 py-2 text-left">Variable</th>
+                <th class="px-4 py-2 text-left">Moyenne</th>
+                <th class="px-4 py-2 text-left">Écart-type</th>
+                <th class="px-4 py-2 text-left">Min</th>
+                <th class="px-4 py-2 text-left">Max</th>
+                <th class="px-4 py-2 text-left">Médiane</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for stat in global_stats %}
+            <tr class="border-t">
+                <td class="px-4 py-2">{{ stat.Variable }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Moyenne) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat['Écart-type']) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Min) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Max) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Médiane) }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- TABLEAU 50 DERNIERS JOURS -->
+    <h2 class="text-2xl font-bold text-gray-700 mb-2">Sur les 50 derniers jours</h2>
+    <div class="overflow-auto">
+        <table class="min-w-full bg-white text-sm border rounded">
+            <thead>
+            <tr class="bg-gray-200">
+                <th class="px-4 py-2 text-left">Variable</th>
+                <th class="px-4 py-2 text-left">Moyenne</th>
+                <th class="px-4 py-2 text-left">Écart-type</th>
+                <th class="px-4 py-2 text-left">Min</th>
+                <th class="px-4 py-2 text-left">Max</th>
+                <th class="px-4 py-2 text-left">Médiane</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for stat in stats_50 %}
+            <tr class="border-t">
+                <td class="px-4 py-2">{{ stat.Variable }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Moyenne_50j) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat['Écart-type_50j']) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Min_50j) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Max_50j) }}</td>
+                <td class="px-4 py-2">{{ "%.2f"|format(stat.Médiane_50j) }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="text-center mt-8">
+        <a href="{{ url_for('index') }}" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
+            Retour à l'accueil
+        </a>
+    </div>
+</div>
+</body>
+</html>

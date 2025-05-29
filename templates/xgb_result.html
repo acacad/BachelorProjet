@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XGBoost Forecast Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .metrics {
+            margin: 20px 0;
+            background-color: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: fit-content;
+        }
+
+        .metrics p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>XGBoost Forecast Results</h1>
+
+<div class="metrics">
+    <p><strong>RMSE:</strong> {{ rmse }}</p>
+    <p><strong>MAE :</strong> {{ mae }}</p>
+    <p><strong>R²  :</strong> {{ r2 }}</p>
+    <p><strong>MAPE:</strong> {{ mape }}%</p>
+    <p><strong>SMAPE:</strong> {{ smape }}%</p>
+    <p><strong>Prévision total 30 jours :</strong> {{ future_sum }}</p>
+</div>
+
+<img src="{{ url_for('static', filename=image_path) }}" alt="XGBoost Forecast Graph">
+
+<br>
+<a href="{{ url_for('index') }}">Retour à l'accueil</a>
+<div class="metric-table">
+    <h2>Résumé comparatif des métriques</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Métrique</th>
+            <th>Sensibilité aux outliers</th>
+            <th>Unité</th>
+            <th>Interprétation intuitive</th>
+            <th>Contexte idéal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>RMSE</td>
+            <td>Élevée</td>
+            <td>Oui</td>
+            <td>Moyenne quadratique de l’erreur</td>
+            <td>Prédictions où grosses erreurs sont critiques</td>
+        </tr>
+        <tr>
+            <td>MAE</td>
+            <td>Faible</td>
+            <td>Oui</td>
+            <td>Moyenne absolue de l’erreur</td>
+            <td>Erreurs équilibrées, interprétation simple</td>
+        </tr>
+        <tr>
+            <td>R²</td>
+            <td>Moyenne</td>
+            <td>Sans unité</td>
+            <td>% de variance expliquée</td>
+            <td>Régression standard (attention en time-series)</td>
+        </tr>
+        <tr>
+            <td>SMAPE</td>
+            <td>Moyenne</td>
+            <td>%</td>
+            <td>Erreur relative symétrique</td>
+            <td>Comparaison sur des échelles différentes</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

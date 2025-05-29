@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter une variable exogène</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        input, select, button {
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ajouter une variable exogène</h1>
+
+<form method="POST">
+    <label for="name">Nom de la variable :</label>
+    <input type="text" name="name" required>
+
+    <label for="start_date">Date de début :</label>
+    <input type="date" name="start_date" required>
+
+    <label for="end_date">Date de fin :</label>
+    <input type="date" name="end_date" required>
+
+    <label for="repeat">Répéter la variable :</label>
+    <select name="repeat" id="repeat">
+        <option value="none">Aucune</option>
+        <option value="weekly">Chaque semaine</option>
+        <option value="monthly">Chaque mois</option>
+    </select>
+    <label for="effect_type">Effet :</label>
+    <select name="effect_type">
+        <option value="constant">Constant</option>
+        <option value="linear_down">Linéaire décroissant</option>
+        <option value="linear_up">Linéaire croissant</option>
+        <option value="middle_peak">Pic au milieu</option>
+    </select>
+
+
+    <button type="submit">Ajouter la variable</button>
+</form>
+
+<a href="{{ url_for('index') }}">Retour à l'accueil</a>
+
+</body>
+</html>

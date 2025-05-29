@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Commerce Forecasting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<header>
+    <h1>QuickStock</h1>
+    <div style="float: right;">
+        {% if logged_in %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Admin Login</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="container">
+    <aside class="sidebar">
+        <h3>Niches</h3>
+        <ul>
+            {% for niche in niches %}
+            <li><a href="#">{{ niche.nom }}</a></li>
+            {% endfor %}
+        </ul>
+
+        {% if logged_in %}
+        <hr>
+        <h3>Admin Panel</h3>
+        <ul>
+            <li><a href="{{ url_for('add_niche_page') }}">➕ Add Niche</a></li>
+            <li><a href="{{ url_for('add_variable') }}">➕ Add Variable</a></li>
+            <li><a href="{{ url_for('delete_variable') }}">❌ Supprimer une variable</a></li>
+            <li><a href="{{ url_for('view_variables') }}">📋 Voir les variables</a></li>
+            <li><a href="{{ url_for('prophet_forecast') }}">📈 Prophet Forecast</a></li>
+            <li><a href="{{ url_for('lstm_forecast') }}">📊 LSTM Forecast</a></li>
+            <li><a href="{{ url_for('xgb_forecast') }}">📊 XGBoost Forecast</a></li>
+            <li><a href="{{ url_for('list_datasets') }}" class="btn">📊 Gérer les Datasets</a></li>
+        </ul>
+        {% endif %}
+    </aside>
+
+    <main class="main-content">
+        <img src="{{ url_for('static', filename='pull.png') }}" alt="Pull" style="width: 300px;">
+    </main>
+
+    <aside class="customizer">
+        <h3>Choix de design</h3>
+        <div class="design-options">
+            <img src="{{ url_for('static', filename='design1.png') }}" alt="Design 1" width="80">
+            <img src="{{ url_for('static', filename='design2.png') }}" alt="Design 2" width="80">
+            <img src="{{ url_for('static', filename='design3.png') }}" alt="Design 3" width="80">
+        </div>
+    </aside>
+</div>
+</body>
+</html>

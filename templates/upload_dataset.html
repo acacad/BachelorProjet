@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importer un Dataset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="file"] {
+            padding: 8px;
+            background-color: #f8f9fa;
+        }
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-label {
+            display: block;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .file-label:hover {
+            background-color: #0056b3;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            margin-left: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #bee5eb;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .info-box ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .info-box code {
+            background-color: #fff;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .file-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            display: none;
+        }
+        .buttons-group {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📤 Importer un Dataset CSV</h1>
+
+    {% if error %}
+    <div class="error">
+        <strong>Erreur :</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="info-box">
+        <h3>📋 Format requis pour le fichier CSV :</h3>
+        <ul>
+            <li>Doit contenir une colonne <code>date</code> (format: YYYY-MM-DD)</li>
+            <li>Doit contenir une colonne <code>Sales</code> ou <code>sales</code></li>
+            <li>Peut contenir des colonnes supplémentaires (variables exogènes)</li>
+            <li>Au moins 10 lignes de données</li>
+            <li>Encodage UTF-8 recommandé</li>
+            <li>Taille maximum : 16 MB</li>
+        </ul>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <div class="form-group">
+            <label for="file">Sélectionner un fichier CSV :</label>
+            <div class="file-input-wrapper">
+                <label for="file" class="file-label">
+                    📁 Choisir un fichier...
+                </label>
+                <input type="file"
+                       id="file"
+                       name="file"
+                       accept=".csv"
+                       required
+                       style="position: absolute; left: -9999px;"
+                       onchange="updateFileName(this)">
+            </div>
+            <div id="file-preview" class="file-preview"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="dataset_name">Nom du dataset (optionnel) :</label>
+            <input type="text"
+                   id="dataset_name"
+                   name="dataset_name"
+                   placeholder="Ex: ventes_2024_q1"
+                   pattern="[a-zA-Z0-9_-]+"
+                   title="Lettres, chiffres, tirets et underscores uniquement">
+            <small style="color: #666;">Si vide, le nom du fichier sera utilisé</small>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="load_to_db" name="load_to_db" value="1">
+                <label for="load_to_db" style="font-weight: normal; margin-bottom: 0;">
+                    Charger immédiatement dans la base de données et l'activer
+                </label>
+            </div>
+        </div>
+
+        <div class="buttons-group">
+            <button type="submit" class="btn" id="submitBtn">
+                ⬆️ Importer le Dataset
+            </button>
+            <a href="{{ url_for('list_datasets') }}" class="btn btn-secondary">
+                ❌ Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function updateFileName(input) {
+        const preview = document.getElementById('file-preview');
+        const label = document.querySelector('.file-label');
+
+        if (input.files.length > 0) {
+            const file = input.files[0];
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+
+            label.innerHTML = `📄 ${fileName}`;
+            preview.innerHTML = `
+                    <strong>Fichier sélectionné :</strong> ${fileName}<br>
+                    <strong>Taille :</strong> ${fileSize} MB
+                `;
+            preview.style.display = 'block';
+
+            // Pré-remplir le nom du dataset si vide
+            const datasetNameInput = document.getElementById('dataset_name');
+            if (!datasetNameInput.value) {
+                // Retirer l'extension .csv et nettoyer le nom
+                let cleanName = fileName.replace('.csv', '').replace(/[^a-zA-Z0-9_-]/g, '_');
+                datasetNameInput.value = cleanName;
+            }
+        } else {
+            label.innerHTML = '📁 Choisir un fichier...';
+            preview.style.display = 'none';
+        }
+    }
+
+    // Afficher un indicateur de chargement lors de l'upload
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '⏳ Upload en cours...';
+        submitBtn.disabled = true;
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Supprimer une variable</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 40px;
+        }
+
+        form {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+        }
+
+        button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+<form method="post">
+    <h2>Supprimer une variable</h2>
+
+    <label for="variable">Variable à supprimer :</label>
+    <select name="variable" required>
+        {% for var in variables %}
+        <option value="{{ var }}">{{ var }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Supprimer</button>
+</form>
+</body>
+</html>
