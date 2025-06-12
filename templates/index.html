@@ -1,59 +1,374 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>E-Commerce Forecasting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickStock - E-Commerce Forecasting</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-section a {
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .login-btn:hover, .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar h3 {
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #4a5568;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar a:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+            margin: 2rem 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #718096;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .models-section {
+            margin-top: 3rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .model-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border-radius: 20px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .model-card:hover::before {
+            opacity: 1;
+        }
+
+        .model-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+            color: white;
+        }
+
+        .model-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .model-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .model-description {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        .design-options img:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .product-image {
+            max-width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .models-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
 <header>
-    <h1>QuickStock</h1>
-    <div style="float: right;">
-        {% if logged_in %}
-        <a href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-        <a href="{{ url_for('login') }}">Admin Login</a>
-        {% endif %}
+    <div class="header-content">
+        <div class="logo">QuickStock.ch</div>
+        <div class="auth-section">
+            {% if logged_in %}
+            <a href="{{ url_for('logout') }}" class="logout-btn">Déconnexion</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="login-btn">Connexion Admin</a>
+            {% endif %}
+        </div>
     </div>
 </header>
 
 <div class="container">
-    <aside class="sidebar">
-        <h3>Niches</h3>
-        <ul>
-            {% for niche in niches %}
-            <li><a href="#">{{ niche.nom }}</a></li>
-            {% endfor %}
-        </ul>
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            {% if logged_in %}
+            <h3>Tableau de bord: </h3>
+            <ul>
+                <li><a href="{{ url_for('add_variable') }}">Ajouter une Variable</a></li>
+                <li><a href="{{ url_for('delete_variable') }}">Supprimer une Variable</a></li>
+                <li><a href="{{ url_for('view_variables') }}">Voir mes Données</a></li>
+                <li><a href="{{ url_for('list_datasets') }}">Gérer les Datasets</a></li>
+            </ul>
+            {% endif %}
+        </aside>
 
-        {% if logged_in %}
-        <hr>
-        <h3>Admin Panel</h3>
-        <ul>
-            <li><a href="{{ url_for('add_niche_page') }}">➕ Add Niche</a></li>
-            <li><a href="{{ url_for('add_variable') }}">➕ Add Variable</a></li>
-            <li><a href="{{ url_for('delete_variable') }}">❌ Supprimer une variable</a></li>
-            <li><a href="{{ url_for('view_variables') }}">📋 Voir les variables</a></li>
-            <li><a href="{{ url_for('prophet_forecast') }}">📈 Prophet Forecast</a></li>
-            <li><a href="{{ url_for('lstm_forecast') }}">📊 LSTM Forecast</a></li>
-            <li><a href="{{ url_for('xgb_forecast') }}">📊 XGBoost Forecast</a></li>
-            <li><a href="{{ url_for('list_datasets') }}" class="btn">📊 Gérer les Datasets</a></li>
-        </ul>
-        {% endif %}
-    </aside>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="hero-section">
+                <h1 class="hero-title">Your BI Tool </h1>
+                <h1 class="hero-title">(✿◕‿◕✿) (✿◕‿◕✿)</h1>
 
-    <main class="main-content">
-        <img src="{{ url_for('static', filename='pull.png') }}" alt="Pull" style="width: 300px;">
-    </main>
+                <p class="hero-subtitle">
+                    Optimisez votre gestion des stocks grâce à l'intelligence artificielle.
+                    Utilisez des modèles de prédiction pour anticiper vos ventes et
+                    analysez vos données, afin de prendre de meilleures décisions !
+                </p>
 
-    <aside class="customizer">
-        <h3>Choix de design</h3>
-        <div class="design-options">
-            <img src="{{ url_for('static', filename='design1.png') }}" alt="Design 1" width="80">
-            <img src="{{ url_for('static', filename='design2.png') }}" alt="Design 2" width="80">
-            <img src="{{ url_for('static', filename='design3.png') }}" alt="Design 3" width="80">
-        </div>
-    </aside>
+            </div>
+
+            {% if logged_in %}
+            <div class="models-section">
+                <h2 class="section-title">Modèles de Prédiction</h2>
+                <div class="models-grid">
+                    <a href="{{ url_for('prophet_forecast') }}" class="model-card">
+                        <span class="model-icon">📈</span>
+                        <h3 class="model-title">Prophet</h3>
+                        <p class="model-description">
+                            Modèle de séries temporelles de Facebook,
+                            idéal pour les données avec tendances et saisonnalités.
+                        </p>
+                    </a>
+
+                    <a href="{{ url_for('lstm_forecast') }}" class="model-card">
+                        <span class="model-icon">🧠</span>
+                        <h3 class="model-title">LSTM</h3>
+                        <p class="model-description">
+                            Réseau de neurones récurrent profond,
+                            excellent pour capturer les dépendances temporelles complexes, peut prendre plusieurs minutes.
+                        </p>
+                    </a>
+
+                    <a href="{{ url_for('xgb_forecast') }}" class="model-card">
+                        <span class="model-icon">🌳</span>
+                        <h3 class="model-title">XGBoost</h3>
+                        <p class="model-description">
+                            Algorithme de gradient boosting performant,
+                            adaptatif selon la complexité de vos données.
+                        </p>
+                    </a>
+                </div>
+
+            </div>
+
+            </footer>
+            {% endif %}
+        </main>
+    </div>
+
+</div>
+</body>
+</html>
 </div>
 </body>
 </html>
