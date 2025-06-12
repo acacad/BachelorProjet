@@ -1,97 +1,213 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Ajouter une variable exogène</title>
+    <title>Gestion des Variables</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 30px;
-            background-color: #f8f9fa;
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
         }
-
-        h1 {
-            color: #333;
+        .form-group {
+            margin: 15px 0;
         }
-
-        form {
-            background-color: #fff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 400px;
+        .form-group label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
         }
-
-        label {
-            display: block;
-            margin-top: 15px;
+        .form-group input, .form-group select {
+            width: 200px;
+            padding: 5px;
         }
-
-        input, select, button {
-            margin-top: 5px;
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
-        }
-
-        button {
-            margin-top: 20px;
-            background-color: #007bff;
-            color: white;
+        .btn {
+            padding: 10px 20px;
+            margin: 10px 5px;
             border: none;
-            border-radius: 4px;
+            border-radius: 3px;
             cursor: pointer;
         }
-
-        button:hover {
-            background-color: #0056b3;
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
         }
-
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #007bff;
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
         }
-
-        a:hover {
-            text-decoration: underline;
+        .alert {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
 <body>
+<h1>Gestion des Variables</h1>
 
-<h1>Ajouter une variable exogène</h1>
+<!-- Messages flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
 
-<form method="POST">
-    <label for="name">Nom de la variable :</label>
-    <input type="text" name="name" required>
+<!-- Section 1: Ajouter une nouvelle variable -->
+<div class="section">
+    <h2>➕ Ajouter une nouvelle variable</h2>
+    <form method="POST">
+        <input type="hidden" name="action" value="add">
 
-    <label for="start_date">Date de début :</label>
-    <input type="date" name="start_date" required>
+        <div class="form-group">
+            <label for="name">Nom de la variable :</label>
+            <input type="text" id="name" name="name" required>
+        </div>
 
-    <label for="end_date">Date de fin :</label>
-    <input type="date" name="end_date" required>
+        <div class="form-group">
+            <label for="start_date">Date de début :</label>
+            <input type="date" id="start_date" name="start_date" value="{{ min_date }}" required>
+        </div>
 
-    <label for="repeat">Répéter la variable :</label>
-    <select name="repeat" id="repeat">
-        <option value="none">Aucune</option>
-        <option value="weekly">Chaque semaine</option>
-        <option value="monthly">Chaque mois</option>
-    </select>
-    <label for="effect_type">Effet :</label>
-    <select name="effect_type">
-        <option value="constant">Constant</option>
-        <option value="linear_down">Linéaire décroissant</option>
-        <option value="linear_up">Linéaire croissant</option>
-        <option value="middle_peak">Pic au milieu</option>
-    </select>
+        <div class="form-group">
+            <label for="end_date">Date de fin :</label>
+            <input type="date" id="end_date" name="end_date" value="{{ max_date }}" required>
+        </div>
 
+        <div class="form-group">
+            <label for="repeat">Répétition :</label>
+            <select id="repeat" name="repeat">
+                <option value="none">Aucune</option>
+                <option value="weekly">Hebdomadaire</option>
+                <option value="monthly">Mensuelle</option>
+            </select>
+        </div>
 
-    <button type="submit">Ajouter la variable</button>
-</form>
+        <div class="form-group">
+            <label for="effect_type">Type d'effet :</label>
+            <select id="effect_type" name="effect_type">
+                <option value="constant">Constant</option>
+                <option value="linear_up">Linéaire croissant</option>
+                <option value="linear_down">Linéaire décroissant</option>
+                <option value="middle_peak">Pic au milieu</option>
+            </select>
+        </div>
 
-<a href="{{ url_for('index') }}">Retour à l'accueil</a>
+        <button type="submit" class="btn btn-primary">Ajouter Variable</button>
+    </form>
+</div>
 
+<!-- Section 2: Modifier une variable existante -->
+<div class="section">
+    <h2>✏️ Modifier une variable existante</h2>
+    {% if existing_variables %}
+    <form method="POST">
+        <input type="hidden" name="action" value="modify">
+
+        <div class="form-group">
+            <label for="variable_to_modify">Variable à modifier :</label>
+            <select id="variable_to_modify" name="variable_to_modify" required>
+                <option value="">-- Sélectionner une variable --</option>
+                {% for var in existing_variables %}
+                <option value="{{ var }}">{{ var }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="modify_action">Action :</label>
+            <select id="modify_action" name="modify_action" onchange="toggleModifyOptions()" required>
+                <option value="">-- Sélectionner une action --</option>
+                <option value="set_period">Modifier une période</option>
+                <option value="set_all">Définir toutes les valeurs</option>
+                <option value="reset">Remettre à zéro</option>
+            </select>
+        </div>
+
+        <!-- Options pour modifier une période -->
+        <div id="period_options" style="display:none;">
+            <div class="form-group">
+                <label for="modify_start_date">Date de début :</label>
+                <input type="date" id="modify_start_date" name="modify_start_date" value="{{ min_date }}">
+            </div>
+
+            <div class="form-group">
+                <label for="modify_end_date">Date de fin :</label>
+                <input type="date" id="modify_end_date" name="modify_end_date" value="{{ max_date }}">
+            </div>
+
+            <div class="form-group">
+                <label for="modify_effect_type">Type d'effet :</label>
+                <select id="modify_effect_type" name="modify_effect_type">
+                    <option value="constant">Constant</option>
+                    <option value="linear_up">Linéaire croissant</option>
+                    <option value="linear_down">Linéaire décroissant</option>
+                    <option value="multiply">Multiplier par</option>
+                    <option value="add">Ajouter</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Option pour la valeur -->
+        <div id="value_option" style="display:none;">
+            <div class="form-group">
+                <label for="modify_value">Valeur :</label>
+                <input type="number" id="modify_value" name="modify_value" step="0.01" value="1.0">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-warning">Modifier Variable</button>
+    </form>
+    {% else %}
+    <p><em>Aucune variable existante à modifier.</em></p>
+    {% endif %}
+</div>
+
+<!-- Section 3: Navigation -->
+<div class="section">
+    <h2>🔗 Navigation</h2>
+    <a href="{{ url_for('view_variables') }}" class="btn btn-primary">Voir toutes les variables</a>
+    <a href="{{ url_for('delete_variable') }}" class="btn btn-warning">Supprimer une variable</a>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Retour à l'accueil</a>
+</div>
+
+<script>
+    function toggleModifyOptions() {
+        const action = document.getElementById('modify_action').value;
+        const periodOptions = document.getElementById('period_options');
+        const valueOption = document.getElementById('value_option');
+
+        // Cacher toutes les options par défaut
+        periodOptions.style.display = 'none';
+        valueOption.style.display = 'none';
+
+        if (action === 'set_period') {
+            // Pour modifier une période, montrer les dates et la valeur
+            periodOptions.style.display = 'block';
+            valueOption.style.display = 'block';
+        } else if (action === 'set_all') {
+            // Pour définir toutes les valeurs, montrer seulement la valeur
+            valueOption.style.display = 'block';
+        } else if (action === 'reset') {
+            // Pour reset, rien à montrer (tout sera mis à 0)
+            // Les options restent cachées
+        }
+    }
+</script>
 </body>
 </html>
